@@ -1,7 +1,7 @@
 # outliersTests
 
 
-The aim of outliersTests is to provide a the statistical tests for various location-scale family distributions: normal, logistic, cauchy, laplace to test does sample contain outliers and identifying those outliers in sample.
+The purpose of outliersTests is to provide statistical tests for absence of outliers hypothesis for various location-scale families of  distributions and give procedures for outlier identification when the hypothesis is rejected.  Normal, logistic, Cauchy, Laplace, Gumbel families are included. In the case of shape-scale families such as Weibull, lognormal or  loglogistic it is sufficient to take logarithms of observations and apply all procedures for Gumbel, normal or logistic families, respectively. 
 
 Key features:
 
@@ -30,7 +30,7 @@ Most simple usage just call method `bp_test`:
 bp_test(example1)
 ```
 
-If you have your on data you might used more parameters:
+For specified data more parameters can be indicated:
 
 ```R
 set.seed(12)
@@ -42,4 +42,11 @@ bp <- bp_test(x, distribution = "cauchy", pvalue = TRUE)
 bp
 x_after <- x[!bp$outlier]
 ks.test(x_after, "pcauchy") # check cauchy, after outliers removal data cauchy again
+```
+
+The documentation of the usage is accesible as:
+
+```R
+?outliersTests # main description of package
+?bp_test # documentation for the usage of the BP test
 ```

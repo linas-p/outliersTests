@@ -197,7 +197,7 @@ bp_test <-  function(data, alpha = 0.05, distribution = "norm",
     found_outliers <- any((statistic$U_i > critical));
     if(found_outliers == TRUE) {
       while(tail(statistic$U_i > critical, 1) == TRUE & (length(data)*2 > n)) {
-        statistic <- bp_statistic(data, distribution = distribution, alternative = alternative, loc = statistic$location, scale = statistic$scale)
+        statistic <- bp_statistic(data, distribution = distribution, alternative = alternative, location = statistic$location, scale = statistic$scale)
         n0 <- length(data)
         critical <- get_critical(n0, 5, alpha, distribution, alternative);
         found_local <- any((statistic$U_i > critical));
@@ -208,7 +208,7 @@ bp_test <-  function(data, alpha = 0.05, distribution = "norm",
         }
       }
 
-      statistic <- bp_statistic(data, distribution = distribution, alternative = alternative, loc = statistic$location, scale = statistic$scale)
+      statistic <- bp_statistic(data, distribution = distribution, alternative = alternative, location = statistic$location, scale = statistic$scale)
       n0 <- length(data)
       critical <- get_critical(n0, 5, alpha, distribution, alternative);
       if(length(which(as.numeric(statistic$U_i >= critical) != 0)) > 0) {
