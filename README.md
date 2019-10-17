@@ -1,5 +1,12 @@
 # outliersTests
 
+<!-- badges: start -->
+[![Travis build status](https://travis-ci.org/linas-p/outliersTests.svg?branch=master)](https://travis-ci.org/linas-p/outliersTests)
+[![Codecov test coverage](https://codecov.io/gh/linas-p/outliersTests/branch/master/graph/badge.svg)](https://codecov.io/gh/linas-p/outliersTests?branch=master)
+
+<!-- badges: end -->
+
+
 
 The purpose of outliersTests is to provide statistical tests for absence of outliers hypothesis for various location-scale families of  distributions and give procedures for outlier identification when the hypothesis is rejected.  Normal, logistic, Cauchy, Laplace, Gumbel families are included. In the case of shape-scale families such as Weibull, lognormal or  loglogistic it is sufficient to take logarithms of observations and apply all procedures for Gumbel, normal or logistic families, respectively. 
 
