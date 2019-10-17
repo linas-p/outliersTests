@@ -1,0 +1,18 @@
+Package: outliersTests
+Type: Package
+Title: Statistical tests of unknown number of outliers
+Version: 0.1.1
+Author: Linas Petkevičius
+Authors@R: person("Linas", "Petkevičius", email = "linas.petkevicius@mif.vu.lt",
+                  role = c("aut", "cre"))
+Maintainer: The package maintainer <linas.petkevicius@mif.vu.lt>
+Description: Statistical test for various location-scale family distributions
+    normal, logistic, laplace, cauchy to test does sample contain outliers and 
+    identifying those outliers in sample.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Suggests:
+    testthat,
+    robustbase
+RoxygenNote: 6.1.1
