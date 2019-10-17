@@ -40,9 +40,9 @@ test_that("get_robust_estimates good parameters", {
 
 
 
-test_that("get_robust_estimate wrong parameters", {
+test_that("get_robust_estimates wrong parameters", {
   x <- rnorm(100)
-  expect_error(get_robust_estimate(x, "??"), "given distribution is supported yet")
+  expect_error(get_robust_estimates(x, "??"), "given distribution is supported yet")
 })
 
 
