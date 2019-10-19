@@ -1,1 +1,5 @@
 exportPattern("^[[:alpha:]]+")
+export(get_robust_estimates)
+export(bp_test)
+export(bp_statistic)
+export(investigate_sample)

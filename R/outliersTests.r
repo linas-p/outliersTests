@@ -367,6 +367,67 @@ get_pvalue <- function(statistic_val, n, distribution = "norm", alternative = "t
 }
 
 
+#' data investigation for outliers
+#'
+#' The procedure to find outliers and then visualize sample after outliers removal
+#' and calculating goodness-of-fit with packages fitdistrplus and flexsurv
+#' @param data A given sample
+#' @export
+#' @examples
+#' investigate_sample(example1)
+#'
+investigate_sample <- function(data) {
+  require(fitdistrplus)
+  #require(evd)
+  require(flexsurv)
+  dist_list <- c("cauchy", "norm", "logis")
+  if (all(data > 0)) {
+    dist_list <- c(dist_list, "lnorm", "weibull")
+  }
+
+  fit_list <- rep(list(1), length(dist_list))
+  found_list <- c()
+  number_list <- c()
+
+  for(i in 1:length(dist_list)) {
+    bp <- bp_test(data, distribution = dist_list[i])
+    found_list <- c(found_list, bp$found_outliers)
+    number_list <-  c(number_list, bp$number_of_outliers)
+    x <- data[!bp$outlier]
+    fit <- fitdist(x, dist_list[i])
+    fit_list[[i]] <- fit
+  }
+
+  results <- as.data.frame(rbind(as.character(found_list), number_list))
+  colnames(results) <- dist_list
+  rownames(results) <- c("Rejected hypothesis about abstance of the outliers", "Number of outliers found")
+  print(results)
+
+
+  for(rejected in unique(number_list)){
+    print(paste("Statistics after the outliers removal, when removed ", rejected, " outliers."))
+    idx <- (number_list == rejected)
+    if (sum(idx) == 1) {
+      id <- which(idx)
+      print(gofstat(fit_list[c(id, id)], fitnames=c(dist_list[idx], dist_list[idx])))
+    } else {
+      print(gofstat(fit_list[idx], fitnames=dist_list[idx]))
+    }
+
+    par(mfrow=c(2,2))
+    plot.legend <- dist_list[idx]
+    denscomp(fit_list[idx], legendtext = plot.legend)
+    cdfcomp (fit_list[idx], legendtext = plot.legend)
+    qqcomp  (fit_list[idx], legendtext = plot.legend)
+    ppcomp  (fit_list[idx], legendtext = plot.legend)
+
+  }
+
+
+
+}
+
+
 #' outliersTests: A package containing statistical tests of identification
 #' unknown number of outliers
 #'
@@ -379,6 +440,9 @@ get_pvalue <- function(statistic_val, n, distribution = "norm", alternative = "t
 #'
 #' \code{\link{bp_test}}: The calculation of the test statistic U and the p-value of the BP test for
 #' outliers and finding of observations declared by the test as outliers.
+#'
+#' \code{\link{investigate_sample}}: The procedure to find outliers and then visualize sample after outliers removal
+#' and calculating goodness-of-fit with packages fitdistrplus and flexsurv
 #'
 #' \code{\link{get_robust_estimates}}:  The robust estimates of the scale (Q_n) and location parameters for
 #' location-scale families of distributions.

@@ -18,6 +18,9 @@ identifying those outliers in sample.
 \code{\link{bp_test}}: The calculation of the test statistic U and the p-value of the BP test for
 outliers and finding of observations declared by the test as outliers.
 
+\code{\link{investigate_sample}}: The procedure to find outliers and then visualize sample after outliers removal
+and calculating goodness-of-fit with packages fitdistrplus and flexsurv
+
 \code{\link{get_robust_estimates}}:  The robust estimates of the scale (Q_n) and location parameters for
 location-scale families of distributions.
 Implemented distributions: normal, gumbel, cauchy, laplace, logistic

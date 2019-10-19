@@ -19,10 +19,10 @@ bp_test(data, alpha = 0.05, distribution = "norm",
 \item{pvalue}{The indicator to return p-value (TRUE or FALSE (default)).
 The p-value is calculated using simulations SO IT MIGHT TAKE SOME TIME}
 
-\item{pvalue_gen}{If pvalue is calculating the number of generations default: 10000 takes up to 5 minutes}
+\item{pvalue_gen}{The number of generations for pvalue calculation; default=10000 takes up to 5 minutes}
 }
 \value{
-The list containing main statistic U, statistics U_i, order of sample, estimates loc and scale,
+The list containing main statistic U, statistics U_i,  ID of outliers, estimates loc and scale,
 and number of identified outliers
 }
 \description{

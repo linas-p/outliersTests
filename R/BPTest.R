@@ -8,7 +8,7 @@
 #' @param s The number of the most remote z-scores used in the first step of outlier search (default: s=5)
 #' @param location Location parameter (if it is specified). If location parameter is not specified, then location=NULL (default) and a robust estimate is calculated.
 #' @param scale Scale parameter (if it is specified). If scale parameter is not specified, then  scale=NULL (default) and a robust estimate is calculated.
-#' @return The list containing main statistic U, statistics U_i, order of sample, estimates location and scale
+#' @return The list containing main statistic U, statistics U_i, ID of outliers, estimates location and scale
 #' @keywords BP statistic
 #' @export
 #' @examples
@@ -99,8 +99,8 @@ bp_statistic <-  function(data, distribution = "norm",
 #' @param alternative The alternatives "two.sided"/"greater"/"less" (default: two.sided)
 #' @param pvalue The indicator to return p-value (TRUE or FALSE (default)).
 #'               The p-value is calculated using simulations SO IT MIGHT TAKE SOME TIME
-#' @param pvalue_gen If pvalue is calculating the number of generations default: 10000 takes up to 5 minutes
-#' @return The list containing main statistic U, statistics U_i, order of sample, estimates loc and scale,
+#' @param pvalue_gen The number of generations for pvalue calculation; default=10000 takes up to 5 minutes
+#' @return The list containing main statistic U, statistics U_i,  ID of outliers, estimates loc and scale,
 #' and number of identified outliers
 #' @keywords BP test
 #' @export

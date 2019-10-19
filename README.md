@@ -37,6 +37,14 @@ Most simple usage just call method `bp_test`:
 bp_test(example1)
 ```
 
+Simple method to check outliers for multiple distributions `investigate_sample`:
+
+```R
+investigate_sample(example1)
+```
+
+
+
 For specified data more parameters can be indicated:
 
 ```R

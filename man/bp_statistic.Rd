@@ -21,7 +21,7 @@ bp_statistic(data, distribution = "norm", alternative = "two.sided",
 \item{scale}{Scale parameter (if it is specified). If scale parameter is not specified, then  scale=NULL (default) and a robust estimate is calculated.}
 }
 \value{
-The list containing main statistic U, statistics U_i, order of sample, estimates location and scale
+The list containing main statistic U, statistics U_i, ID of outliers, estimates location and scale
 }
 \description{
 The calculation of BP (Bagdonavičius-Petkevičius) statistic
