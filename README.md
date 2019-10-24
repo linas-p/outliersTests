@@ -6,7 +6,7 @@
 
 <!-- badges: end -->
 
-
+The R package for test proposed in article [Multiple outlier detection tests for parametric models](https://arxiv.org/abs/1910.10426).
 
 The purpose of outliersTests is to provide statistical tests for absence of outliers hypothesis for various location-scale families of  distributions and give procedures for outlier identification when the hypothesis is rejected.  Normal, logistic, Cauchy, Laplace, Gumbel families are included. In the case of shape-scale families such as Weibull, lognormal or  loglogistic it is sufficient to take logarithms of observations and apply all procedures for Gumbel, normal or logistic families, respectively. 
 

@@ -10,7 +10,7 @@ r_packages:
 matrix:
   include:
   - r: release
-    after_success: 
+    after_success:
       - Rscript -e 'covr::codecov(token = "9c67741e-cd05-462b-b937-5dc67f0e6721")'
       - Rscript -e 'library(covr); codecov(token = "9c67741e-cd05-462b-b937-5dc67f0e6721")'
 
@@ -18,6 +18,3 @@ matrix:
   - r: oldrel
   - r: 3.6
   - r: 3.5
-  - r: 3.4
-  - r: 3.3
-  - r: 3.2
