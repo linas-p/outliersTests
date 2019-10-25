@@ -226,12 +226,14 @@ get_an <- function(n, m = 0, s=1, distribution = "norm", alternative = "greater"
 #' Critical values of BP test
 #'
 #' The method with estimated aproximations of critical values.
-#' The unimplemented cases using rough approximation instead.
+#' For two.sided alternatives the exact approximations were provided.
+#' For less common configurations the simulation is applied and exact critical value is calculated.
 #' @param n A sample size
 #' @param s A upper limit (default s=5)
 #' @param alpha The significance level  (default: 0.05)
 #' @param distribution The distribution name
 #' @param alternative The choice of alternative ("two.sided"/"greater"/"less")
+#' @param gen_num The number of simulations to used in order to calculate p-value.
 #' @return ret The critical value of statistics U
 #' @keywords BP critical values
 #' @export
@@ -239,10 +241,10 @@ get_an <- function(n, m = 0, s=1, distribution = "norm", alternative = "greater"
 #' get_critical(100)
 #'
 #'
-get_critical <- function(n, s = 5, alpha = 0.05, distribution = "norm", alter = "two.sided") {
+get_critical <- function(n, s = 5, alpha = 0.05, distribution = "norm", alternative = "two.sided", gen_num = 10000) {
   critical <- NA;
 
-  if (alter == "two.sided") {
+  if (alternative == "two.sided") {
     if (distribution == "norm") {
       if(alpha == 0.05) {
         if (s == 5) {
@@ -307,9 +309,21 @@ get_critical <- function(n, s = 5, alpha = 0.05, distribution = "norm", alter = 
   }
 
   if(is.na(critical)){
-    warning("At given s, alpha and alternative, exact critical values is not implemented.
-      Rough approximation is used insted.")
-    critical <- (1-alpha)^(1/s)
+    r_samples <- switch(distribution,
+      "norm" = lapply(rep(n, gen_num), rnorm),
+      "cauchy" = lapply(rep(n, gen_num), rcauchy),
+      "logis" = lapply(rep(n, gen_num), rlogis),
+      "laplace" = lapply(rep(n, gen_num), rlaplace),
+      "lnorm" = lapply(rep(n, gen_num), rlnorm),
+      "gumbel" = lapply(rep(n, gen_num), rgumbel)
+    )
+    statistics <- lapply(r_samples, bp_statistic, distribution = distribution, alternative=alternative, s = s)
+    ms <- lapply(statistics, function(X){return(X$Test_statistic_U)})
+    critical <- quantile(unlist(ms), 1-alpha)[[1]]
+
+    #warning("At given s, alpha and alternative, exact critical values is not implemented.
+    #  Rough approximation is used insted.")
+    #critical <- (1-alpha)^(1/s)
   }
   return(critical)
 
@@ -369,60 +383,57 @@ get_pvalue <- function(statistic_val, n, distribution = "norm", alternative = "t
 
 #' data investigation for outliers
 #'
-#' The procedure to find outliers and then visualize sample after outliers removal
-#' and calculating goodness-of-fit with packages fitdistrplus and flexsurv
+#' The procedure to find outliers and then check the goodness-of-fit with
+#' given distribution.
+#'
 #' @param data A given sample
 #' @export
 #' @examples
 #' investigate_sample(example1)
 #'
-investigate_sample <- function(data) {
-  require(fitdistrplus)
+investigate_sample <- function(data, alpha = 0.05) {
   #require(evd)
-  require(flexsurv)
-  dist_list <- c("cauchy", "norm", "logis")
-  if (all(data > 0)) {
-    dist_list <- c(dist_list, "lnorm", "weibull")
-  }
+
+  dist_list <- c("norm", "logis", "cauchy")#, "laplace"
 
   fit_list <- rep(list(1), length(dist_list))
   found_list <- c()
   number_list <- c()
+  valid_dist <- ""
 
   for(i in 1:length(dist_list)) {
     bp <- bp_test(data, distribution = dist_list[i])
-    found_list <- c(found_list, bp$found_outliers)
-    number_list <-  c(number_list, bp$number_of_outliers)
+    found_list <- bp$found_outliers
+    number_list <-  bp$number_of_outliers
     x <- data[!bp$outlier]
-    fit <- fitdist(x, dist_list[i])
-    fit_list[[i]] <- fit
-  }
+    ks <- ks.test(x, paste("p", dist_list[i], sep=""))
 
-  results <- as.data.frame(rbind(as.character(found_list), number_list))
-  colnames(results) <- dist_list
-  rownames(results) <- c("Rejected hypothesis about abstance of the outliers", "Number of outliers found")
-  print(results)
+    if(ks$p.value > alpha) {
+      valid_dist <- dist_list[i];
 
+      dist_n <- switch(valid_dist,
+        norm = "normal",
+        logis = "logistic",
+        cauchy = "cauchy",
+        laplace = "laplace")
+      cat(paste("After checking the hypothesis about absence of outliers in ", dist_n, " distribution,\n",
+        "the alternative "))
+      if(found_list) {
+        cat(" were accepted and ", number_list, " outliers was identified.\n")
+      } else {
+        cat(" were rejected so no outliers was found.\n")
+      }
 
-  for(rejected in unique(number_list)){
-    print(paste("Statistics after the outliers removal, when removed ", rejected, " outliers."))
-    idx <- (number_list == rejected)
-    if (sum(idx) == 1) {
-      id <- which(idx)
-      print(gofstat(fit_list[c(id, id)], fitnames=c(dist_list[idx], dist_list[idx])))
-    } else {
-      print(gofstat(fit_list[idx], fitnames=dist_list[idx]))
+      cat("After testing for outliers in data, the goodness-of-fit hypothesis was checked:\n the alternative that data is different from ", dist_n, " distribution was rejected.\n Cleaned sample could be used for futher investigation. \n")
+      print(ks)
+
+      break
     }
-
-    par(mfrow=c(2,2))
-    plot.legend <- dist_list[idx]
-    denscomp(fit_list[idx], legendtext = plot.legend)
-    cdfcomp (fit_list[idx], legendtext = plot.legend)
-    qqcomp  (fit_list[idx], legendtext = plot.legend)
-    ppcomp  (fit_list[idx], legendtext = plot.legend)
-
   }
 
+  if (valid_dist == "") {
+    cat("no distributions out of normal, cauchy, logistic, laplace does not fit the goodness-of-fit for given distributions after outliers removal.")
+  }
 
 
 }

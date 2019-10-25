@@ -5,7 +5,7 @@
 \title{Critical values of BP test}
 \usage{
 get_critical(n, s = 5, alpha = 0.05, distribution = "norm",
-  alter = "two.sided")
+  alternative = "two.sided", gen_num = 10000)
 }
 \arguments{
 \item{n}{A sample size}
@@ -17,13 +17,16 @@ get_critical(n, s = 5, alpha = 0.05, distribution = "norm",
 \item{distribution}{The distribution name}
 
 \item{alternative}{The choice of alternative ("two.sided"/"greater"/"less")}
+
+\item{gen_num}{The number of simulations to used in order to calculate p-value.}
 }
 \value{
 ret The critical value of statistics U
 }
 \description{
 The method with estimated aproximations of critical values.
-The unimplemented cases using rough approximation instead.
+For two.sided alternatives the exact approximations were provided.
+For less common configurations the simulation is applied and exact critical value is calculated.
 }
 \examples{
 get_critical(100)

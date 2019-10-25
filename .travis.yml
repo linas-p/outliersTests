@@ -17,4 +17,3 @@ matrix:
   - r: devel
   - r: oldrel
   - r: 3.6
-  - r: 3.5

@@ -15,6 +15,5 @@ LazyData: true
 Suggests:
     testthat,
     robustbase,
-    flexsurv,
-    fitdistrplus
+    evd
 RoxygenNote: 6.1.1
