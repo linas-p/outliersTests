@@ -394,7 +394,7 @@ get_pvalue <- function(statistic_val, n, distribution = "norm", alternative = "t
 investigate_sample <- function(data, alpha = 0.05) {
   #require(evd)
 
-  dist_list <- c("norm", "logis", "cauchy")#, "laplace"
+  dist_list <- c("norm", "logis", "cauchy", "laplace", "gumbel")#
 
   fit_list <- rep(list(1), length(dist_list))
   found_list <- c()
