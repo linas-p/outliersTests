@@ -15,5 +15,4 @@ matrix:
       - Rscript -e 'library(covr); codecov(token = "9c67741e-cd05-462b-b937-5dc67f0e6721")'
 
   - r: devel
-  - r: oldrel
   - r: 3.6
