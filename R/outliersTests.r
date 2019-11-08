@@ -394,7 +394,7 @@ get_pvalue <- function(statistic_val, n, distribution = "norm", alternative = "t
 investigate_sample <- function(data, alpha = 0.05) {
   #require(evd)
 
-  dist_list <- c("norm", "logis", "cauchy", "laplace", "gumbel")#
+  dist_list <- c("norm", "logis", "laplace", "gumbel", "cauchy")#
 
   fit_list <- rep(list(1), length(dist_list))
   found_list <- c()
@@ -406,26 +406,35 @@ investigate_sample <- function(data, alpha = 0.05) {
     found_list <- bp$found_outliers
     number_list <-  bp$number_of_outliers
     x <- data[!bp$outlier]
-    ks <- ks.test(x, paste("p", dist_list[i], sep=""))
+    #ks <- ks.test(x, paste("p", dist_list[i], sep=""))
+    ks <- ks_check(x, distribution = dist_list[i], verbose = FALSE)
+    ad <- ad_check(x, distribution = dist_list[i], verbose = FALSE)
 
-    if(ks$p.value > alpha) {
+    if(!ad$rejected) {
       valid_dist <- dist_list[i];
 
       dist_n <- switch(valid_dist,
         norm = "normal",
         logis = "logistic",
         cauchy = "cauchy",
-        laplace = "laplace")
-      cat(paste("After checking the hypothesis about absence of outliers in ", dist_n, " distribution,\n",
+        laplace = "laplace",
+        gumbel = "gumbel")
+      cat(paste("\n After checking the hypothesis about absence of outliers in ", dist_n, " distribution,\n",
         "the alternative "))
       if(found_list) {
         cat(" were accepted and ", number_list, " outliers was identified.\n")
+        cat("\n After outliers removal in data, the goodness-of-fit hypothesis was checked:\n
+          the null hypothesis that data is from ", dist_n, " distribution was accepted.\n Cleaned sample could be used for futher investigation. \n")
+
       } else {
         cat(" were rejected so no outliers was found.\n")
+        cat("\n The goodness-of-fit hypothesis was checked:\n
+          the null hypothesis that data is from ", dist_n, " distribution was accepted.\n Cleaned sample could be used for futher investigation. \n")
       }
 
-      cat("After testing for outliers in data, the goodness-of-fit hypothesis was checked:\n the alternative that data is different from ", dist_n, " distribution was rejected.\n Cleaned sample could be used for futher investigation. \n")
-      print(ks)
+
+      print(paste("KS test statistics U:   ", round(ks$U, 2), " with critical value: ", round(ks$critical, 2)))
+      print(paste("AD test statistics A^2: ", round(ad$A2, 2), " with critical value: ", round(ad$critical, 2)))
 
       break
     }
@@ -437,6 +446,177 @@ investigate_sample <- function(data, alpha = 0.05) {
 
 
 }
+
+
+ks_test <- function(x, distribution = "norm") {
+
+  n <- length(x);
+  distr <- switch(distribution,
+    norm = pnorm,
+    logis = plogis,
+    cauchy = pcauchy,
+    gumbel = pgumbel,
+    laplace = plaplace
+  )
+  x <- sort(x)
+
+  va <- var(x)
+  be <- sqrt(6 * va / pi^2);
+  mu <- switch (distribution,
+    norm = mean(x),
+    gumbel = mean(x) - be * 0.5772,
+    logis = mean(x),
+    cauchy = mean(x),
+    laplace = mean(x)
+  )
+
+  sds <- switch (distribution,
+    norm = sd(x),
+    gumbel = be,
+    logis = sqrt(va * 3 / (pi^2)),
+    cauchy = get_robust_estimates(x, distribution = distribution)$scale,
+    laplace = sqrt(va/2)
+  )
+
+  U <- distr(x, mu,  sds);
+  Dp <- max((1:n) / n - U);
+  Dm <- max(U - (1:n - 1) / n);
+  D <- max(Dm, Dp);
+
+  return(D);
+}
+
+
+ks_check <- function(x, distribution = "norm", alpha = 0.05, verbose = FALSE, gen_num = 10000) {
+  n <- length(x);
+  ks <- ks_test(x, distribution = distribution);
+  critical <- NA;
+
+  if (alpha == 0.05) {
+    critical <- switch(distribution,
+      norm = exp(-0.195445 - 0.485438 * log(n)),
+      logis = exp(-0.107282 - 0.486688 * log(n)),
+      cauchy = 0.8966121,
+      gumbel = 1.0834,
+      laplace = exp(-0.024938 - 0.476576 * log(n))
+    )
+
+  } else {
+    distr <- switch(distribution,
+      norm = rnorm,
+      logis = rlogis,
+      cauchy = rcauchy,
+      gumbel = rgumbel,
+      laplace = rlaplace
+    )
+
+    sam <- lapply(rep(n, gen_num), distr);
+    ks <- lapply(sam, ks_test, distribution);
+    critical <- quantile(unlist(ks), 1 - alpha);
+  }
+
+  rejected <- FALSE;
+  if (ks > critical) {
+    if(verbose) {
+      print(paste("KS: The null hypothesis that data fit ", distribution, " is rejected. Distribution is not ", distribution))
+    }
+    rejected <- TRUE;
+  } else {
+    if(verbose) {
+      print(paste("KS: The null hypothesis that data fit ", distribution ," was accepted."))
+    }
+    rejected <- FALSE;
+  }
+
+  return(list(rejected = rejected, U = ks, critical = critical))
+
+}
+
+
+ad_test <- function(x, distribution = 'norm') {
+  n <- length(x);
+  x <- sort(x);
+  f <- switch (distribution,
+    norm = pnorm,
+    gumbel = pgumbel,
+    logis = plogis,
+    cauchy = pcauchy,
+    laplace = plaplace
+  )
+  #mu <- mean(x)
+  va <- var(x)
+  be <- sqrt(6 * va / pi^2);
+  mu <- switch (distribution,
+    norm = mean(x),
+    gumbel = mean(x) - be * 0.5772,
+    logis = mean(x),
+    cauchy = mean(x),
+    laplace = mean(x)
+  )
+
+  sds <- switch (distribution,
+    norm = sd(x),
+    gumbel = be,
+    logis = sqrt(va * 3 / (pi^2)),
+    cauchy = get_robust_estimates(x, distribution = distribution)$scale,
+    laplace = sqrt(va/2)
+  )
+  log1 <- f(x, mu, sds);
+  log2 <- f(rev(x), mu, sds);
+  id <- 1:n;
+  h <- (2*id - 1)*(log(log1) + log(1-log2))
+  A <- -n - mean(h)
+
+  return(A);
+}
+
+
+
+ad_check <- function(x, distribution = "norm", alpha = 0.05, verbose = FALSE, gen_num = 10000) {
+  n <- length(x);
+  ks <- ad_test(x, distribution = distribution);
+  critical <- NA;
+
+  if (alpha == 0.05) {
+    critical <- switch(distribution,
+      norm = 0.7388575,
+      logis = 0.8962129,
+      cauchy = exp(-1.351995 + 1.056177 * log(n)),
+      gumbel = 1.071733,
+      laplace = 1.323736
+    )
+
+  } else {
+    distr <- switch(distribution,
+      norm = rnorm,
+      logis = rlogis,
+      cauchy = rcauchy,
+      gumbel = rgumbel,
+      laplace = rlaplace
+    )
+
+    sam <- lapply(rep(n, gen_num), distr);
+    ks <- lapply(sam, ad_test, distribution);
+    critical <- quantile(unlist(ks), 1 - alpha);
+  }
+
+  rejected <- FALSE;
+  if (ks > critical) {
+    if(verbose) {
+      print(paste("AD: The null hypothesis that data fit ", distribution, " is rejected. Distribution is not ", distribution))
+    }
+    rejected <- TRUE;
+  } else {
+    if(verbose) {
+      print(paste("AD: The null hypothesis that data fit ", distribution ," was accepted."))
+    }
+    rejected <- FALSE;
+  }
+
+  return(list(rejected = rejected, A2 = ks, critical = critical))
+
+}
+
 
 
 #' outliersTests: A package containing statistical tests of identification

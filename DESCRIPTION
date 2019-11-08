@@ -1,7 +1,7 @@
 Package: outliersTests
 Type: Package
 Title: Statistical tests of unknown number of outliers
-Version: 0.1.2
+Version: 0.1.3
 Author: Linas Petkevičius
 Authors@R: person("Linas", "Petkevičius", email = "linas.petkevicius@mif.vu.lt",
                   role = c("aut", "cre"))
