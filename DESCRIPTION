@@ -3,7 +3,8 @@ Type: Package
 Title: Statistical tests of unknown number of outliers
 Version: 0.1.3
 Author: Linas Petkevičius
-Authors@R: person("Linas", "Petkevičius", email = "linas.petkevicius@mif.vu.lt",
+Authors@R: person("Linas", "Petkevičius", 
+		   email = "linas.petkevicius@mif.vu.lt",
                   role = c("aut", "cre"))
 Maintainer: The package maintainer <linas.petkevicius@mif.vu.lt>
 Description: Statistical test for various location-scale family distributions

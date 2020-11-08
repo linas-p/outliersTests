@@ -2,7 +2,6 @@
 
 <!-- badges: start -->
 [![Travis build status](https://travis-ci.org/linas-p/outliersTests.svg?branch=master)](https://travis-ci.org/linas-p/outliersTests)
-[![Codecov test coverage](https://codecov.io/gh/linas-p/outliersTests/branch/master/graph/badge.svg)](https://codecov.io/gh/linas-p/outliersTests?branch=master)
 
 <!-- badges: end -->
 
