@@ -80,7 +80,7 @@ bp_statistic <-  function(data, distribution = "norm",
   }
 
   if(distribution == "gumbel") {
-    return(list(Test_statistic_U = max(rk1), U_i = rk1, order = idx1, Ms2 = max(rk2), Ts2 = rk2, order2 = idx2, location = est$location, scale = est$scale))
+    return(list(Test_statistic_U = max(rk1), U_i = rk1, order = idx1, Ms2 = max(rk2), U_i2 = rk2, order2 = idx2, location = est$location, scale = est$scale))
   } else {
     return(list(Test_statistic_U = max(rk), U_i = rk, order = idx, location = est$location, scale = est$scale))
   }
