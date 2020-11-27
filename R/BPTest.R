@@ -21,7 +21,7 @@ bp_statistic <-  function(data, distribution = "norm",
   location = NULL, scale = NULL) {
   n <- length(data);
   if (!(distribution %in% c("norm", "logis", "cauchy", "gumbel",
-    "laplace", "lnorm"))){
+    "laplace", "lnorm", "extII"))){
     stop(paste("given distribution is supported yet"));
   }
 
@@ -47,7 +47,7 @@ bp_statistic <-  function(data, distribution = "norm",
   an <- get_an(n, est$location, est$scale, distribution = distribution, alternative = alternative);
 
   if (alternative == "two.sided") {
-    if (distribution == "gumbel") {
+    if (distribution == "gumbel" || distribution == "extII") {
       order <- order(data, decreasing = TRUE);
       idx1 <- order[1:s];
       idx2 <- order[n:(n-s+1)];
@@ -72,14 +72,14 @@ bp_statistic <-  function(data, distribution = "norm",
 
   if(distribution == "cauchy") {
     rk <- 1-pchisq(2/(1+rk), 2*(1:s));
-  } else if(distribution == "gumbel" & alternative == "two.sided") {
+  } else if((distribution == "gumbel" | distribution == "extII")& alternative == "two.sided") {
       rk1 <- 1-pchisq(2*exp(-rk1), 2*(1:s));
       rk2 <- 1-pchisq(2*exp(rk2), 2*(1:s));
   } else {
     rk <- 1-pchisq(2*exp(-rk), 2*(1:s));
   }
 
-  if(distribution == "gumbel" & alternative == "two.sided") {
+  if((distribution == "gumbel" | distribution == "extII") & alternative == "two.sided") {
     return(list(Test_statistic_U = max(rk1), U_i = rk1, order = idx1, Ms2 = max(rk2), U_i2 = rk2, order2 = idx2,
                 location = est$location, scale = est$scale))
   } else {
@@ -131,7 +131,7 @@ bp_test <-  function(data, alpha = 0.05, distribution = "norm",
 
   n <- length(data);
   if (!(distribution %in% c("norm", "logis", "cauchy", "gumbel",
-    "laplace", "lnorm"))){
+    "laplace", "lnorm", "extII"))){
     stop(paste("given distribution is supported yet"));
   }
 
@@ -151,7 +151,7 @@ bp_test <-  function(data, alpha = 0.05, distribution = "norm",
 
   critical <- get_critical(n, 5, alpha, distribution, alternative);
 
-  if(distribution == "gumbel") {
+  if(distribution == "gumbel" | alternative == "two.sided") {
     found_outliers <- any((statistic$U_i > critical) | (statistic$U_i2 > critical));
 
     if(found_outliers == TRUE) {

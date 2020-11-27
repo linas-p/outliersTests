@@ -53,7 +53,7 @@ get_robust_estimates <- function(x, distribution = "norm") {
   require("robustbase");
 
   if(!(distribution %in% c("norm", "logis", "cauchy", "gumbel",
-    "laplace", "lnorm"))){
+    "laplace", "lnorm", "extII"))){
     stop(paste("given distribution is supported yet"));
   }
 
@@ -70,6 +70,7 @@ get_robust_estimates <- function(x, distribution = "norm") {
     logis = 1.307883,
     cauchy = 1.2071068,
     gumbel = 1.957615,
+    extII = 1.957615,
     laplace = 1.9305030,
     lnorm = 2.22191445
   )
@@ -82,6 +83,7 @@ get_robust_estimates <- function(x, distribution = "norm") {
     cauchy = med,
     laplace = med,
     gumbel = med - 0.3665129*sigma,
+    extII = med + 0.3665129*sigma,
     lnorm = med
   )
 
@@ -112,7 +114,7 @@ get_bn <- function(n, m = 0, s = 1, distribution = "norm", alternative = "greate
   }
 
   if(!(distribution %in% c("norm", "logis", "cauchy", "gumbel",
-    "laplace", "lnorm"))){
+    "laplace", "lnorm", "extII"))){
     stop(paste("given distribution is supported yet"));
   }
 
@@ -125,6 +127,8 @@ get_bn <- function(n, m = 0, s = 1, distribution = "norm", alternative = "greate
       bn <- m + s*qnorm((n-1)/n);
     } else if(distribution == "gumbel") {
       bn <- m - s*log(-log(1-1/n));
+    } else if(distribution == "extII") {
+      bn <- m + s*log(log(n));
     } else if(distribution == "logis") {
       bn <- m + s*log(n-1);
     } else if(distribution == "cauchy") {
@@ -146,6 +150,10 @@ get_bn <- function(n, m = 0, s = 1, distribution = "norm", alternative = "greate
     } else if(distribution == "lnorm") {
       bn <- m + s*log(n);
     } else if(distribution == "gumbel") {
+      bn1 <- m + s*log(log(n));
+      bn2 <- m - s*log(-log(1-1/n));
+      bn <- c(bn2, bn1)
+    } else if(distribution == "extII") {
       bn1 <- m + s*log(log(n));
       bn2 <- m - s*log(-log(1-1/n));
       bn <- c(bn2, bn1)
@@ -178,7 +186,7 @@ get_an <- function(n, m = 0, s=1, distribution = "norm", alternative = "greater"
   }
 
   if(!(distribution %in% c("norm", "logis", "cauchy", "gumbel",
-    "laplace", "lnorm"))){
+    "laplace", "lnorm", "extII"))){
     stop(paste("given distribution is supported yet"));
   }
 
@@ -192,6 +200,9 @@ get_an <- function(n, m = 0, s=1, distribution = "norm", alternative = "greater"
       an <- s/qnorm(1 - 1/n)
     } else if(distribution == "gumbel") {
       an <- -s/((n-1)*log(1-1/n))
+    } else if(distribution == "extII") {
+      an <- s/log(log(n))
+      #an <- s/exp(-log(log(n)))
     } else if(distribution == "logis") {
       an <- s*n/(n-1);
     } else if(distribution == "cauchy") {
@@ -215,6 +226,10 @@ get_an <- function(n, m = 0, s=1, distribution = "norm", alternative = "greater"
       bn <- get_bn(n, m, s, distribution);
       an <- s*bn/(n*dnorm(qnorm(1 - 1/(2*n))))
     } else if(distribution == "gumbel") {
+      an1 <- s/(log(n))
+      an2 <- -s/((n-1)*log(1-1/n))
+      an <- c(an2, an1)
+    } else if(distribution == "extII") {
       an1 <- s/(log(n))
       an2 <- -s/((n-1)*log(1-1/n))
       an <- c(an2, an1)
@@ -315,7 +330,8 @@ get_critical <- function(n, s = 5, alpha = 0.05, distribution = "norm", alternat
       "logis" = lapply(rep(n, gen_num), rlogis),
       "laplace" = lapply(rep(n, gen_num), rlaplace),
       "lnorm" = lapply(rep(n, gen_num), rlnorm),
-      "gumbel" = lapply(rep(n, gen_num), rgumbel)
+      "gumbel" = lapply(rep(n, gen_num), rgumbel),
+      "extII" = lapply(rep(n, gen_num), rextII)
     )
     statistics <- lapply(r_samples, bp_statistic, distribution = distribution, alternative=alternative, s = s)
     ms <- lapply(statistics, function(X){return(X$Test_statistic_U)})
@@ -373,7 +389,8 @@ get_pvalue <- function(statistic_val, n, distribution = "norm", alternative = "t
     "logis" = lapply(rep(n, gen_num), rlogis),
     "laplace" = lapply(rep(n, gen_num), rlaplace),
     "lnorm" = lapply(rep(n, gen_num), rlnorm),
-    "gumbel" = lapply(rep(n, gen_num), rgumbel)
+    "gumbel" = lapply(rep(n, gen_num), rgumbel),
+    "extII" = lapply(rep(n, gen_num), rextII)
   )
   statistics <- lapply(r_samples, get_main_bp_statistic, distribution = distribution, alternative=alternative)
   p.value <- mean(unlist(statistics) > statistic_val)
@@ -456,6 +473,7 @@ ks_test <- function(x, distribution = "norm") {
     logis = plogis,
     cauchy = pcauchy,
     gumbel = pgumbel,
+    extII = pextII,
     laplace = plaplace
   )
   x <- sort(x)
@@ -465,6 +483,7 @@ ks_test <- function(x, distribution = "norm") {
   mu <- switch (distribution,
     norm = mean(x),
     gumbel = mean(x) - be * 0.5772,
+    extII = mean(x) + be * 0.5772,
     logis = mean(x),
     cauchy = mean(x),
     laplace = mean(x)
@@ -473,6 +492,7 @@ ks_test <- function(x, distribution = "norm") {
   sds <- switch (distribution,
     norm = sd(x),
     gumbel = be,
+    extII = be,
     logis = sqrt(va * 3 / (pi^2)),
     cauchy = get_robust_estimates(x, distribution = distribution)$scale,
     laplace = sqrt(va/2)
@@ -617,7 +637,27 @@ ad_check <- function(x, distribution = "norm", alpha = 0.05, verbose = FALSE, ge
 
 }
 
+dextII <- function(q, mu = 0, sigma = 1) {
+  p <- -exp((q - mu)/sigma - exp((q - mu)/sigma))/sigma
+  return(p)
+}
 
+
+pextII <- function(q, mu = 0, sigma = 1) {
+  p <- 1-exp(-exp((q-mu)/sigma))
+  return(p)
+}
+
+qextII <- function(p, mu = 0, sigma = 1) {
+  q<- mu + sigma * log(-log(1-p))
+  return(q)
+}
+
+rextII <- function(n, mu = 0, sigma = 1) {
+  r <- runif(n)
+  q <- mu + sigma * log(-log(1-r))
+  return(q)
+}
 
 #' outliersTests: A package containing statistical tests of identification
 #' unknown number of outliers
