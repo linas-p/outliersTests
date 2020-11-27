@@ -4,8 +4,13 @@
 \alias{get_pvalue}
 \title{p-value of BP test}
 \usage{
-get_pvalue(statistic_val, n, distribution = "norm",
-  alternative = "two.sided", gen_num = 10000)
+get_pvalue(
+  statistic_val,
+  n,
+  distribution = "norm",
+  alternative = "two.sided",
+  gen_num = 10000
+)
 }
 \arguments{
 \item{statistic_val}{A given BP statistics value}

@@ -4,7 +4,7 @@
 \alias{investigate_sample}
 \title{data investigation for outliers}
 \usage{
-investigate_sample(data, alpha = 0.05)
+investigate_sample(data, alpha = 0.05, verbose = FALSE)
 }
 \arguments{
 \item{data}{A given sample}

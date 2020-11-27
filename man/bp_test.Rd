@@ -4,8 +4,14 @@
 \alias{bp_test}
 \title{BP test for outliers}
 \usage{
-bp_test(data, alpha = 0.05, distribution = "norm",
-  alternative = "two.sided", pvalue = FALSE, pvalue_gen = 10000)
+bp_test(
+  data,
+  alpha = 0.05,
+  distribution = "norm",
+  alternative = "two.sided",
+  pvalue = FALSE,
+  pvalue_gen = 10000
+)
 }
 \arguments{
 \item{data}{A given data}

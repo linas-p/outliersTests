@@ -44,6 +44,7 @@ investigate_sample(example1)
 
 
 
+
 For specified data more parameters can be indicated:
 
 ```R

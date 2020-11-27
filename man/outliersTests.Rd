@@ -3,7 +3,6 @@
 \docType{package}
 \name{outliersTests}
 \alias{outliersTests}
-\alias{outliersTests-package}
 \title{outliersTests: A package containing statistical tests of identification
 unknown number of outliers}
 \description{
@@ -30,5 +29,7 @@ Implemented distributions: normal, gumbel, cauchy, laplace, logistic
 
 
 \code{\link{example1}}: - example data
+
+\code{\link{example2}}: - example data
 }
 

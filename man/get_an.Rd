@@ -4,8 +4,7 @@
 \alias{get_an}
 \title{constant a_n}
 \usage{
-get_an(n, m = 0, s = 1, distribution = "norm",
-  alternative = "greater")
+get_an(n, m = 0, s = 1, distribution = "norm", alternative = "greater")
 }
 \arguments{
 \item{n}{A sample size}

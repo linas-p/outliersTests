@@ -17,5 +17,6 @@ Suggests:
     testthat,
     robustbase,
     evd,
-    rmutil
-RoxygenNote: 6.1.1
+    rmutil,
+    extraDistr
+RoxygenNote: 7.1.1

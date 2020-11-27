@@ -4,8 +4,14 @@
 \alias{bp_statistic}
 \title{Calculation of BP statistic}
 \usage{
-bp_statistic(data, distribution = "norm", alternative = "two.sided",
-  s = 5, location = NULL, scale = NULL)
+bp_statistic(
+  data,
+  distribution = "norm",
+  alternative = "two.sided",
+  s = 5,
+  location = NULL,
+  scale = NULL
+)
 }
 \arguments{
 \item{data}{A given data}

@@ -4,8 +4,14 @@
 \alias{get_critical}
 \title{Critical values of BP test}
 \usage{
-get_critical(n, s = 5, alpha = 0.05, distribution = "norm",
-  alternative = "two.sided", gen_num = 10000)
+get_critical(
+  n,
+  s = 5,
+  alpha = 0.05,
+  distribution = "norm",
+  alternative = "two.sided",
+  gen_num = 10000
+)
 }
 \arguments{
 \item{n}{A sample size}

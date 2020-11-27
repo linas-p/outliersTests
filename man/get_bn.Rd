@@ -4,8 +4,7 @@
 \alias{get_bn}
 \title{constant b_n}
 \usage{
-get_bn(n, m = 0, s = 1, distribution = "norm",
-  alternative = "greater")
+get_bn(n, m = 0, s = 1, distribution = "norm", alternative = "greater")
 }
 \arguments{
 \item{n}{A sample size}

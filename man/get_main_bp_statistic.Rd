@@ -4,8 +4,7 @@
 \alias{get_main_bp_statistic}
 \title{Main BP statistic}
 \usage{
-get_main_bp_statistic(data, distribution = "norm",
-  alternative = "two.sided")
+get_main_bp_statistic(data, distribution = "norm", alternative = "two.sided")
 }
 \arguments{
 \item{data}{A given data}

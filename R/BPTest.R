@@ -72,15 +72,16 @@ bp_statistic <-  function(data, distribution = "norm",
 
   if(distribution == "cauchy") {
     rk <- 1-pchisq(2/(1+rk), 2*(1:s));
-  } else if(distribution == "gumbel") {
-    rk1 <- 1-pchisq(2*exp(-rk1), 2*(1:s));
-    rk2 <- 1-pchisq(2*exp(rk2), 2*(1:s));
+  } else if(distribution == "gumbel" & alternative == "two.sided") {
+      rk1 <- 1-pchisq(2*exp(-rk1), 2*(1:s));
+      rk2 <- 1-pchisq(2*exp(rk2), 2*(1:s));
   } else {
     rk <- 1-pchisq(2*exp(-rk), 2*(1:s));
   }
 
-  if(distribution == "gumbel") {
-    return(list(Test_statistic_U = max(rk1), U_i = rk1, order = idx1, Ms2 = max(rk2), Ts2 = rk2, order2 = idx2, location = est$location, scale = est$scale))
+  if(distribution == "gumbel" & alternative == "two.sided") {
+    return(list(Test_statistic_U = max(rk1), U_i = rk1, order = idx1, Ms2 = max(rk2), U_i2 = rk2, order2 = idx2,
+                location = est$location, scale = est$scale))
   } else {
     return(list(Test_statistic_U = max(rk), U_i = rk, order = idx, location = est$location, scale = est$scale))
   }

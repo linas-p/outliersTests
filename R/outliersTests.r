@@ -391,10 +391,10 @@ get_pvalue <- function(statistic_val, n, distribution = "norm", alternative = "t
 #' @examples
 #' investigate_sample(example1)
 #'
-investigate_sample <- function(data, alpha = 0.05) {
+investigate_sample <- function(data, alpha = 0.05, verbose = FALSE) {
   #require(evd)
 
-  dist_list <- c("norm", "logis", "laplace", "gumbel", "cauchy")#
+  dist_list <- c("norm", "gumbel", "logis", "laplace",  "cauchy")#
 
   fit_list <- rep(list(1), length(dist_list))
   found_list <- c()
@@ -407,8 +407,8 @@ investigate_sample <- function(data, alpha = 0.05) {
     number_list <-  bp$number_of_outliers
     x <- data[!bp$outlier]
     #ks <- ks.test(x, paste("p", dist_list[i], sep=""))
-    ks <- ks_check(x, distribution = dist_list[i], verbose = FALSE)
-    ad <- ad_check(x, distribution = dist_list[i], verbose = FALSE)
+    ks <- ks_check(x, distribution = dist_list[i], verbose = verbose)
+    ad <- ad_check(x, distribution = dist_list[i], verbose = verbose)
 
     if(!ad$rejected) {
       valid_dist <- dist_list[i];
@@ -643,6 +643,7 @@ ad_check <- function(x, distribution = "norm", alpha = 0.05, verbose = FALSE, ge
 #'
 #' \code{\link{example1}}: - example data
 #'
+#' \code{\link{example2}}: - example data
 #'
 #' @docType package
 #' @name outliersTests
