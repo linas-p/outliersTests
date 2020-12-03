@@ -5,7 +5,7 @@
 
 <!-- badges: end -->
 
-The R package for test proposed in article [Multiple outlier detection tests for parametric models](https://arxiv.org/abs/1910.10426).
+The R package for test proposed in article [Multiple outlier detection tests for parametric models](https://www.mdpi.com/2227-7390/8/12/2156).
 
 The purpose of outliersTests is to provide statistical tests for absence of outliers hypothesis for various location-scale families of  distributions and give procedures for outlier identification when the hypothesis is rejected.  Normal, logistic, Cauchy, Laplace, Gumbel families are included. In the case of shape-scale families such as Weibull, lognormal or  loglogistic it is sufficient to take logarithms of observations and apply all procedures for Gumbel, normal or logistic families, respectively. 
 
@@ -65,3 +65,20 @@ The documentation of the usage is accesible as:
 ?outliersTests # main description of package
 ?bp_test # documentation for the usage of the BP test
 ```
+
+## Cite:
+
+    Bagdonavičius, V.; Petkevičius, L. Multiple Outlier Detection Tests for Parametric Models. Mathematics 2020, 8, 2156.
+
+or
+        
+     @article{bagdonaviciusmulti2020,
+        title={Multiple Outlier Detection Tests for Parametric Models},
+        author={Bagdonavičius, Vilijandas and Petkevičius, Linas},
+        journal={Mathematics},
+        volume={8},
+        number={12},
+        pages={2156},
+        year={2020},
+        publisher={Multidisciplinary Digital Publishing Institute}
+      }
