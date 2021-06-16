@@ -17,13 +17,15 @@
 #' bp_statistic(x)
 #'
 bp_statistic <-  function(data, distribution = "norm",
-  alternative = "two.sided", s = 5,
+  alternative = "greater", s = 5,
   location = NULL, scale = NULL) {
   n <- length(data);
   if (!(distribution %in% c("norm", "logis", "cauchy", "gumbel",
     "laplace", "lnorm", "extII"))){
     stop(paste("given distribution is supported yet"));
   }
+
+
 
   if ((s < 1) || (s > round(n/2))) {
     stop(paste("Statistics limit s is not valid"));
@@ -127,12 +129,16 @@ bp_statistic <-  function(data, distribution = "norm",
 #' ks.test(x_after, "pcauchy") # check cauchy, after outliers removal data cauchy again
 #'
 bp_test <-  function(data, alpha = 0.05, distribution = "norm",
-  alternative = "two.sided", pvalue = FALSE, pvalue_gen = 1e4) {
+  alternative = "greater", pvalue = FALSE, pvalue_gen = 1e4) {
 
   n <- length(data);
   if (!(distribution %in% c("norm", "logis", "cauchy", "gumbel",
     "laplace", "lnorm", "extII"))){
     stop(paste("given distribution is supported yet"));
+  }
+
+  if (!(alternative %in% c("less", "greater"))){
+    stop(paste("given alternative is supported yet"));
   }
 
   if(!(alternative %in% c("greater", "less", "two.sided"))){
@@ -237,4 +243,191 @@ bp_test <-  function(data, alpha = 0.05, distribution = "norm",
 
 
 
+}
+
+
+BP2TestReg <-  function(sample, distribution = "norm", alternative = "two.sided", correction = FALSE, s = 0) {
+    n <- length(sample);
+    if(s == 0) {
+        s <- 5;
+    }
+    order <- order(sample)
+
+    bn <- get_bn(n, distribution = distribution, alternative=alternative);
+    an <- get_an(n, distribution = distribution, alternative=alternative);
+
+    if (alternative == "two.sided") {
+        y <- abs(sample)
+        order <- order(y, decreasing = TRUE);
+        idx <- order[1:s];
+        rk <- (abs(y[idx]) - bn)/an;
+    } else if(alternative == "greater") {
+        order <- order(sample, decreasing = TRUE);
+        idx <- order[1:s];
+        rk <- (sample[idx] - bn)/an;
+    } else if(alternative == "less") {
+        order <- order(sample);
+        idx <- order[1:s];
+        rk <- -(sample[idx] + bn)/an;
+    }
+
+
+    rk <- 1-pchisq(2*exp(-rk), 2*(1:s));
+    if(correction) {
+        for(m in 1:s) {
+            pars <- unifs[unifs[,1] == n & unifs[,2] == m, 3:4]
+            rk[m] <- pbeta(rk[m], pars[1], pars[2]);
+        }
+    }
+
+    return(list(Ms = max(rk), Ts = rk, order = idx));
+}
+
+
+
+BP2Test <-  function(sample, distribution = "norm", alternative = "greater", correction = FALSE,
+                     s = 5) {
+  n <- length(sample);
+  order <- order(sample)
+
+  est <- get_robust_estimates(sample, distribution);
+
+  bn <- get_bn(n, est$location, est$scale, distribution = distribution, alternative = alternative);
+  an <- get_an(n, est$location, est$scale, distribution = distribution, alternative = alternative);
+
+
+  if (alternative == "two.sided") {
+    y <- abs(sample)
+    order <- order(y, decreasing = TRUE);
+    idx <- order[1:s];
+    rk <- (abs(y[idx]) - bn)/an;
+  } else if(alternative == "greater") {
+    order <- order(sample, decreasing = TRUE);
+    idx <- order[1:s];
+    rk <- (sample[idx] - bn)/an;
+  } else if(alternative == "less") {
+    order <- order(sample);
+    idx <- order[1:s];
+    rk <- -(sample[idx] + bn)/an;
+  }
+  rk <- 1-pchisq(2*exp(-rk), 2*(1:s));
+
+  return(list(Ms = max(rk), Ts = rk, order = idx, mu = est$location, s = est$scale))
+}
+
+
+
+BP_regression_test <- function(sample, critical = NULL, distribution = "norm", n = length(sample), alternative = "two.sided",
+                    alpha = 0.05, correction = FALSE, riba = 5, s = 5) {
+
+    sample0 <- sample
+    found <- FALSE;
+    id <- c();
+    statistic <- BP2Test(sample, distribution = distribution,
+                         alternative = alternative, correction = correction,
+                         s = 5)
+
+    idx <- 1:n;
+
+    outlier <- c();
+    s0 <- s
+
+    critical <- get_critical(s);
+    found <- any((statistic$Ts > critical));
+
+    if(found) {
+        while(tail(statistic$Ts > critical, 1) == TRUE) {
+            s <- s + 1;
+            critical <- get_critical(s);
+            statistic <- BP2Test(sample, distribution = distribution,
+                                 alternative = alternative, correction = correction,
+                                 s = s)
+        }
+
+        found_local <- TRUE;
+        while(s > (riba-1) & found_local) { # not finished all s is "suspected"
+            statistic <- BP2Test(sample, distribution = distribution,
+                                 alternative = alternative, correction = correction,
+                                 s = s)
+            critical <- get_critical(s);
+            found_local <- any((statistic$Ts > critical));
+            if(found_local) {
+                outlier <- c(outlier, idx[statistic$order[1]]);
+                sample <- sample[-c(statistic$order[1])];
+                idx <- idx[-c(statistic$order[1])]
+
+                s <- tail(which(as.numeric(statistic$Ts >= critical) != 0), 1)-1;
+            }
+        }
+
+        statistic <- BP2Test(sample, distribution = distribution,
+                             alternative = alternative, correction = correction,
+                             s = s)
+        critical <- get_critical(s);
+        if(length(which(as.numeric(statistic$Ts >= critical) != 0)) > 0) {
+            outlier <- c(outlier, idx[statistic$order[1:tail(which(as.numeric(statistic$Ts >= critical) != 0), 1)]]);
+            sample <- sample[-c(statistic$order[1:tail(which(as.numeric(statistic$Ts >= critical) != 0), 1)])];
+            idx <- idx[-statistic$order[1:tail(which(as.numeric(statistic$Ts >= critical) != 0), 1)]]
+        }
+    }
+    p <- rep(FALSE, n);
+
+    if(length(outlier) > 0){
+        p[outlier] <- TRUE;
+    }
+
+    return(list(found = found, outlier = p, id = outlier));
+
+}
+
+
+get_betas <- function(x, y, mode = "LTS", alternative = "two.sided", prop = NULL) {#, correction = FALSE
+
+  if(mode == "OLS") {
+    m <- lm(y ~ x);
+  } else if(mode == "LTS") {
+    dat <- as.data.frame(cbind(x, y))
+    if (is.null(prop)) {
+      prop <- 0.5
+    }
+    m <- ltsReg(y ~ .,  data = dat, alpha = prop); #alpha = get_k_n(length(y)),
+  } else if(mode == "robust") {
+    m <- rlm(y ~ x);
+  } else if(mode == "LMSTS") {
+    m <- ltsreg(y ~ x, method = "lts");
+  } else if(mode == "LMSQS") {
+    m <- lqs(y ~ x, method = "lqs");
+  } else if(mode == "LMSMS") {
+    m <- lmsreg(y ~ x, method = "lms");
+  } else if(mode == "QR") {
+    m <- rq(y ~ x);
+  } else if(mode == "ROB") {
+    m <- lmrob(y ~ x);
+  }
+
+  if(mode == "OLS") {
+    hatsigma <- get_robust_estimates(m$residuals, type = "ML", alternative = alternative)$sigma;
+    hatmu <- 0;
+  } else {
+    hatsigma <- m$scale;#est$sigma;
+    hatmu <- 0; #est$mu;
+  }
+  #
+  #
+  if(is.null(dim(x))){
+    n <- length(x);
+  }else {
+    n <- dim(x)[1];
+  }
+
+  ones <- rep(1, n);
+  Z <- m$X;#cbind(ones, x);
+  H <- Z %*% solve(t(Z) %*% Z) %*% t(Z);
+  hii <- diag(H);
+  d <- sqrt(1 - hii);
+
+  ri <- (m$residuals) / (d*hatsigma); #/cl
+
+
+  return(list(sigma = hatsigma, mu = hatmu, params = m$coefficients, ri = ri, hi = hii, ei = (m$residuals)/hatsigma));
 }

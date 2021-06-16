@@ -263,12 +263,7 @@ get_critical <- function(n, s = 5, alpha = 0.05, distribution = "norm", alternat
     if (distribution == "norm") {
       if(alpha == 0.05) {
         if (s == 5) {
-          x <- log(log(log(log(n))));
-          if(n %% 2 == 1) {
-            critical <- 1 - (0.015929         -0.006473 * x)
-          }else {
-            critical <- 1 - (0.003551         -0.034848  * x)
-          }
+          critical <- 0.9853
           return(critical)
         }
       }

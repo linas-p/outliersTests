@@ -33,13 +33,8 @@ library(outliersTests)
 Most simple usage just call method `bp_test`:
 
 ```R
-bp_test(example1)
-```
+bp_test(example1, alternative = "greater", pvalue = TRUE)
 
-Simple method to check outliers for multiple distributions `investigate_sample`:
-
-```R
-investigate_sample(example1)
 ```
 
 
@@ -53,7 +48,7 @@ x <- rcauchy(100)
 ks.test(x, "pcauchy") # check cauchy distribution
 x[12:22] <- 500
 ks.test(x, "pcauchy") # check cauchy, not cauchy data
-bp <- bp_test(x, distribution = "cauchy", pvalue = TRUE)
+bp <- bp_test(x, alternative = "greater", distribution = "cauchy", pvalue = TRUE)
 bp
 x_after <- x[!bp$outlier]
 ks.test(x_after, "pcauchy") # check cauchy, after outliers removal data cauchy again
@@ -65,6 +60,30 @@ The documentation of the usage is accesible as:
 ?outliersTests # main description of package
 ?bp_test # documentation for the usage of the BP test
 ```
+
+
+Most simple usage for regression just call method `BP_regression_test`:
+
+```R
+set.seed(12)
+x <- 1:100
+y <- 2 + 2*x + rnorm(100)
+y[2:5] <- 10
+
+estimates <- get_betas(x, y)
+estimates
+
+BP_regression_test(estimates$ri)
+
+```
+
+
+
+
+
+
+
+
 
 ## Cite:
 
