@@ -89,6 +89,8 @@ BP_regression_test(estimates$ri)
 
     Bagdonavičius, V.; Petkevičius, L. Multiple Outlier Detection Tests for Parametric Models. Mathematics 2020, 8, 2156.
 
+    Bagdonavičius, V., & Petkevičius, L. (2020). A new multiple outliers identification method in linear regression. Metrika, 83(3), 275-296.
+
 or
         
      @article{bagdonaviciusmulti2020,
@@ -100,4 +102,15 @@ or
         pages={2156},
         year={2020},
         publisher={Multidisciplinary Digital Publishing Institute}
+      }
+
+      @article{bagdonavivcius2020new,
+        title={A new multiple outliers identification method in linear regression},
+        author={Bagdonavi{\v{c}}ius, Vilijandas and Petkevi{\v{c}}ius, Linas},
+        journal={Metrika},
+        volume={83},
+        number={3},
+        pages={275--296},
+        year={2020},
+        publisher={Springer}
       }
